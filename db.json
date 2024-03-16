@@ -1,1 +1,16 @@
-{}
+{
+    "pet": [
+        {
+            "id": "8437ksdajfd",
+            "type": "DOG",
+            "name": "Plutai",
+            "createdAt": "3473q74983923"
+        },
+        {
+            "id": "8437ksdajfdsd",
+            "type": "CAT",
+            "name": "Neptune",
+            "createdAt": "3473q74983923"
+        }
+    ]
+}
