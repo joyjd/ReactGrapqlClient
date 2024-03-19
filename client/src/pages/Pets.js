@@ -28,29 +28,56 @@ const NEW_PET = gql`
 `
 
 export default function Pets() {
-  const [modal, setModal] = useState(false)
+  const [modal, setModal] = useState(false);
   const { data, loading, error } = useQuery(ALL_PETS_QUERY);
-  const [createPet, newPet] = useMutation({ ...NEW_PET })
+  const [createPet, newPet] = useMutation({ ...NEW_PET }, {
+    update(cache, { data: { addPet } }) {
+      const data = cache.readQuery({ query: ALL_PETS_QUERY });
+      data.pets.push(addPet);
+      cache.writeQuery({ query: ALL_PETS_QUERY, data });
+    }
+  });
 
-  const onSubmit = input => {
-    setModal(false)
-    createPet({
-      variables: {
-        newPet: input
+  const onSubmit = (input) => {
+    setModal(false);
+    createPet(
+      {
+        variables: {
+          newPet: input,
+        },
+
+        optimisticResponse: {
+          __typename: "Mutation",
+          addPet: {
+            ...input,
+            id: 123,
+            img: "https://via.placeholder.com/300",
+            __typename: "Pet",
+          },
+        },
       }
-    })
+    );
+  };
+
+  if (!data) {
+    return (
+      <div>
+        <h1>Pets</h1>
+        <p>Loading</p>
+      </div>
+    );
   }
 
   if (modal) {
-    return <NewPetModal onSubmit={onSubmit} onCancel={() => setModal(false)} />
+    return <NewPetModal onSubmit={onSubmit} onCancel={() => setModal(false)} />;
   }
 
-  if (loading || newPet.loading) {
-    return <Loader />
+  if (loading /* || newPet.loading */) {
+    return <Loader />;
   }
 
   if (error || newPet.error) {
-    return <div>Error</div>
+    return <div>Error</div>;
   }
   return (
     <div className="page pets-page">
@@ -69,5 +96,6 @@ export default function Pets() {
         <PetsList pets={data.pets} />
       </section>
     </div>
-  )
+  );
 }
+
